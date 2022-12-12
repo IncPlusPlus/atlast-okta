@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get the script's version
         run: |
-          sed -nr 's/^.*@version\s+([0-9]+\.[0-9]+)$/\1/p' src/atlast-okta.user.js /tmp/version
+          sed -nr 's/^.*@version\s+([0-9]+\.[0-9]+)$/\1/p' src/atlast-okta.user.js > /tmp/version
           echo "SCRIPT_VERSION=`cat /tmp/version`" >> $GITHUB_ENV
       - name: Create distribution files
         run: |
