@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         At last! Okta! (Confluence and JIRA Okta Redirect Fixer)
+// @name         At last! Okta! (Confluence and Jira Okta Redirect Fixer)
 // @namespace    https://github.com/IncPlusPlus/atlast-okta
-// @version      0.4
-// @description  When Confluence or JIRA's sessions expire, they require the user to log in again. However, our Okta configuration doesn't send the browser back to the original page that was being viewed. This userscript fixes that.
+// @version      0.5
+// @description  When Confluence or Jira's sessions expire, they require the user to log in again. However, our Okta configuration doesn't send the browser back to the original page that was being viewed. This userscript fixes that.
 // @author       IncPlusPlus
 // @include      https://confluence.*.tld/*
 // @include      https://jira.*.tld/*
@@ -14,8 +14,8 @@
 // Surprisingly, it seems that the GM_set/getValue polyfills aren't necessary to require. https://www.greasespot.net/2017/09/greasemonkey-4-for-script-authors.html
 
 /*
- * JIRA and Confluence direct the user to a different URL than each other when the session expires.
- * JIRA's is "/okta_login.jsp?RelayState=[ORIGINAL_DESTINATION_AS_ENCODED_URL]". If I were to visit the dashboard at "https://jira.mydomain.mytld/secure/Dashboard.jspa", the URL would be "https://jira.mydomain.mytld/okta_login.jsp?RelayState=%2Fsecure%2FDashboard.jspa"
+ * Jira and Confluence direct the user to a different URL than each other when the session expires.
+ * Jira's is "/okta_login.jsp?RelayState=[ORIGINAL_DESTINATION_AS_ENCODED_URL]". If I were to visit the dashboard at "https://jira.mydomain.mytld/secure/Dashboard.jspa", the URL would be "https://jira.mydomain.mytld/okta_login.jsp?RelayState=%2Fsecure%2FDashboard.jspa"
  *
  * Confluence has a few. For the server and datacenter platforms, the formats can be seen at https://confluence.atlassian.com/confkb/the-differences-between-various-url-formats-for-a-confluence-page-278692715.html.
  * The session expiry page will always look like the "/login.action?os_destination=[INTENDED_DESTINATION]&permissionViolation=true". In some cases, the INTENDED_DESTINATION will differ from where the user actually tried to visit.
@@ -23,7 +23,7 @@
  * When attempting to visit a PageId Format, "/pages/viewpage.action?pageId=131268615", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FpageId%3D131268615" which is the same as the original but url-encoded.
  * When attempting to visit a Shortened ("Tiny Link") Format, "/x/ZIB3Ag", INTENDED_DESTINATION becomes "/pages/tinyurl.action?urlIdentifier=ZIB3Ag".
  *
- * BEWARE that there could simply be nothing there if the user clicked the "sign in" button on JIRA/Confluence. In the case of JIRA, the path will be "/okta_login.jsp" and that's it.
+ * BEWARE that there could simply be nothing there if the user clicked the "sign in" button on Jira/Confluence. In the case of Jira, the path will be "/okta_login.jsp" and that's it.
  * With Confluence, it'll be "login.action?logout=true" if they just clicked "log out". Othwerwise, it always seems to include "os_destination" which will point to the default landing page.
  */
 
@@ -35,8 +35,8 @@ const OKTA_JIRA_BASE_URL = 'https://cogitocorp.okta.com/app/jira_onprem';
 const SiteType = {
     Confluence: 'Confluence',
 //    OktaConfluence: 'OktaConfluence',
-    JIRA: 'JIRA',
-//    OktaJIRA: 'OktaJIRA',
+    Jira: 'Jira',
+//    OktaJira: 'OktaJira',
 };
 
 const determineSite = url => {
@@ -48,10 +48,10 @@ const determineSite = url => {
 //      return SiteType.OktaConfluence;
 
         case url.startsWith(JIRA_BASE_URL) || url.startsWith(OKTA_JIRA_BASE_URL):
-            return SiteType.JIRA;
+            return SiteType.Jira;
 
 //    case url.startsWith(OKTA_JIRA_BASE_URL):
-//      return SiteType.OktaJIRA;
+//      return SiteType.OktaJira;
     }
 }
 
@@ -72,7 +72,7 @@ const processJiraState = (location) => {
             window.sessionStorage.setItem(INTENDED_DESTINATION, decodeURIComponent(intendedPagePath));
         }
     } else {
-        // We've probably been redirected back to JIRA after signing into Okta. Check if we were intending to redirect the user when this happens.
+        // We've probably been redirected back to Jira after signing into Okta. Check if we were intending to redirect the user when this happens.
         const intendedPath = window.sessionStorage.getItem(INTENDED_DESTINATION);
         // getItem() returns undefined if it wasn't set so we can use it for its truthiness
         if(intendedPath) {
