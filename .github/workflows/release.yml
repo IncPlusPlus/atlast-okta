@@ -15,6 +15,7 @@ jobs:
           echo "SCRIPT_VERSION=`cat /tmp/version`" >> $GITHUB_ENV
       - name: Create distribution files
         run: |
+          mkdir -p dist
           cp src/atlast-okta.user.js dist/atlast-okta.user.js
           awk '/==UserScript/, /\/UserScript/' src/atlast-okta.user.js > dist/atlast-okta.meta.js
       - uses: stefanzweifel/git-auto-commit-action@v4
