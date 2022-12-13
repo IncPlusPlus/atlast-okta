@@ -51,7 +51,7 @@ const processJiraState = (location) => {
             window.sessionStorage.removeItem(INTENDED_DESTINATION);
             window.sessionStorage.removeItem(INTENDED_HOSTNAME);
             // Go to the page the user was trying to go to before they were so rudely redirected to the login page.
-            window.location = intendedHostname + '/' + intendedPath;
+            window.location = intendedHostname + intendedPath;
         }
     }
 }
@@ -65,13 +65,18 @@ const processConfluenceState = (location) => {
         // If intendedPagePath is null, the os_destination query param is missing. Do nothing
         if (intendedPagePath) {
             const intendedPagePathUriComponents = decodeURIComponent(intendedPagePath.substring(intendedPagePath.indexOf("?")));
-            // For some reason, Confluence will throw away /x/ short links. I don't like that so I'm fixing that
             const innerParams = new URLSearchParams(intendedPagePathUriComponents);
             const urlIdentifier = innerParams.get('urlIdentifier');
+            const spaceKey = innerParams.get('spaceKey');
+            const title = innerParams.get('title');
+            // For some reason, Confluence will throw away /x/ short links. I don't like that so I'm fixing that
             if (urlIdentifier) {
                 alert('short link')
                 // Save the /x/ link instead of the uglier /pages/tinyurl.action?urlIdentifier=asdf type beat
                 intendedPagePath = '/x/' + urlIdentifier;
+            } else if (spaceKey && title) {
+                // Make a link to /display/XYZ/abc actually go there instead of to /pages/viewpage.action?spaceKey=XYZ&title=abc
+                intendedPagePath = '/display/' + spaceKey + '/' + title;
             }
             alert('saved')
             window.sessionStorage.setItem(INTENDED_DESTINATION, intendedPagePath);
@@ -88,7 +93,7 @@ const processConfluenceState = (location) => {
             window.sessionStorage.removeItem(INTENDED_DESTINATION);
             window.sessionStorage.removeItem(INTENDED_HOSTNAME);
             // Go to the page the user was trying to go to before they were so rudely redirected to the login page.
-            window.location = intendedHostname + '/' + intendedPath;
+            window.location = intendedHostname + intendedPath;
         }
     }
 }
