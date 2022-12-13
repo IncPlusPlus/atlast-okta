@@ -1,0 +1,35 @@
+name: Version increment enforcer
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v3
+        with:
+          path: 'pr-head'
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          path: 'main'
+          ref: 'main'
+      - name: Get script version numbers for main branch and PR
+        run: |
+          sed -nr 's/^.*@version\s+([0-9]+\.[0-9]+)$/\1/p' pr-head/src/atlast-okta.user.js > /tmp/new-version
+          echo "NEW_SCRIPT_VERSION=`cat /tmp/new-version`" >> $GITHUB_ENV
+          
+          sed -nr 's/^.*@version\s+([0-9]+\.[0-9]+)$/\1/p' main/src/atlast-okta.user.js > /tmp/old-version
+          echo "OLD_SCRIPT_VERSION=`cat /tmp/old-version`" >> $GITHUB_ENV
+      - name: Check if script has been changed
+        run: diff pr-head/src/atlast-okta.user.js main/src/atlast-okta.user.js || echo "SCRIPT_CHANGED=true" >> $GITHUB_ENV
+      - name: Enforce newer version number
+        if: ${{ env.SCRIPT_CHANGED }}
+        # Will exit with 1 if the new version is not greater than the old version
+        # Modeled from https://stackoverflow.com/a/11238237/1687436
+        run: awk "BEGIN {exit !(${{ env.NEW_SCRIPT_VERSION }} > ${{ env.OLD_SCRIPT_VERSION }})}"
+
