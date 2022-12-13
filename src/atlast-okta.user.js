@@ -23,13 +23,12 @@
  * With Confluence, it'll be "login.action?logout=true" if they just clicked "log out". Otherwise, it always seems to include "os_destination" which will point to the default landing page.
  */
 
-const CONFLUENCE_BASE_URL = 'https://confluence.';
-const JIRA_BASE_URL = 'https://jira.';
-
 // ================== Session storage keys ==================
 // Set when it's detected that the user lands on a sign-on page. The value is set to the intended destination that
 // the script should redirect to after the user successfully signs into Okta.
 const INTENDED_DESTINATION = 'incplusplus.atlast-okta.intended_destination';
+// Set when the user lands on a sign-on page. The value is set to the full hostname of the Jira or Confluence server.
+const INTENDED_HOSTNAME = 'incplusplus.atlast-okta.intended_hostname';
 
 const processJiraState = (location) => {
     if (location.toString().includes('/okta_login.jsp')) {
@@ -39,23 +38,59 @@ const processJiraState = (location) => {
         // If intendedPagePath is null, the RelayState query param is missing. Do nothing
         if (intendedPagePath) {
             window.sessionStorage.setItem(INTENDED_DESTINATION, decodeURIComponent(intendedPagePath));
+            window.sessionStorage.setItem(INTENDED_HOSTNAME, location.origin);
         }
     } else {
         // We may have been redirected back to Jira after signing in to Okta.
         // Check if we were intending to redirect now that they've signed in.
         const intendedPath = window.sessionStorage.getItem(INTENDED_DESTINATION);
+        const intendedHostname = window.sessionStorage.getItem(INTENDED_HOSTNAME);
         // getItem() returns undefined if it wasn't set, so we can use it for its truthiness
         if (intendedPath) {
             // Remove the item from storage after we're done with it, lest we trap the user on one page for eternity.
             window.sessionStorage.removeItem(INTENDED_DESTINATION);
+            window.sessionStorage.removeItem(INTENDED_HOSTNAME);
             // Go to the page the user was trying to go to before they were so rudely redirected to the login page.
-            window.location = JIRA_BASE_URL + intendedPath;
+            window.location = intendedHostname + '/' + intendedPath;
         }
     }
 }
 
-// TODO: Confluence is a WIP
-const processConfluenceState = (url) => {
+const processConfluenceState = (location) => {
+    if (location.toString().includes('/login.action')) {
+        alert(JSON.stringify(location))
+        const params = new URLSearchParams(location.search);
+        // We're at the sign-in page. Check if the user was trying to view a specific page
+        let intendedPagePath = params.get('os_destination');
+        // If intendedPagePath is null, the os_destination query param is missing. Do nothing
+        if (intendedPagePath) {
+            const intendedPagePathUriComponents = decodeURIComponent(intendedPagePath.substring(intendedPagePath.indexOf("?")));
+            // For some reason, Confluence will throw away /x/ short links. I don't like that so I'm fixing that
+            const innerParams = new URLSearchParams(intendedPagePathUriComponents);
+            const urlIdentifier = innerParams.get('urlIdentifier');
+            if (urlIdentifier) {
+                alert('short link')
+                // Save the /x/ link instead of the uglier /pages/tinyurl.action?urlIdentifier=asdf type beat
+                intendedPagePath = '/x/' + urlIdentifier;
+            }
+            alert('saved')
+            window.sessionStorage.setItem(INTENDED_DESTINATION, intendedPagePath);
+            window.sessionStorage.setItem(INTENDED_HOSTNAME, location.origin);
+        }
+    } else {
+        // We may have been redirected back to Confluence after signing in to Okta.
+        // Check if we were intending to redirect now that they've signed in.
+        const intendedPath = window.sessionStorage.getItem(INTENDED_DESTINATION);
+        const intendedHostname = window.sessionStorage.getItem(INTENDED_HOSTNAME);
+        // getItem() returns undefined if it wasn't set, so we can use it for its truthiness
+        if (intendedPath) {
+            // Remove the item from storage after we're done with it, lest we trap the user on one page for eternity.
+            window.sessionStorage.removeItem(INTENDED_DESTINATION);
+            window.sessionStorage.removeItem(INTENDED_HOSTNAME);
+            // Go to the page the user was trying to go to before they were so rudely redirected to the login page.
+            window.location = intendedHostname + '/' + intendedPath;
+        }
+    }
 }
 
 const SiteType = {
@@ -67,9 +102,9 @@ const SiteType = {
 const determineSite = url => {
     // Oh, how I wish JS had switch expressions
     switch (true) {
-        case url.startsWith(CONFLUENCE_BASE_URL):
+        case url.startsWith('https://confluence.'):
             return SiteType.Confluence;
-        case url.startsWith(JIRA_BASE_URL):
+        case url.startsWith('https://jira.'):
             return SiteType.Jira;
         default:
             return SiteType.UNKNOWN
@@ -85,7 +120,7 @@ const processState = (url) => {
     }
 }
 
-(function() {
+(function () {
     'use strict';
     processState(window.location);
 })();
