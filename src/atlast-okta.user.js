@@ -58,7 +58,6 @@ const processJiraState = (location) => {
 
 const processConfluenceState = (location) => {
     if (location.toString().includes('/login.action')) {
-        alert(JSON.stringify(location))
         const params = new URLSearchParams(location.search);
         // We're at the sign-in page. Check if the user was trying to view a specific page
         let intendedPagePath = params.get('os_destination');
@@ -71,14 +70,12 @@ const processConfluenceState = (location) => {
             const title = innerParams.get('title');
             // For some reason, Confluence will throw away /x/ short links. I don't like that so I'm fixing that
             if (urlIdentifier) {
-                alert('short link')
                 // Save the /x/ link instead of the uglier /pages/tinyurl.action?urlIdentifier=asdf type beat
                 intendedPagePath = '/x/' + urlIdentifier;
             } else if (spaceKey && title) {
                 // Make a link to /display/XYZ/abc actually go there instead of to /pages/viewpage.action?spaceKey=XYZ&title=abc
                 intendedPagePath = '/display/' + spaceKey + '/' + title;
             }
-            alert('saved')
             window.sessionStorage.setItem(INTENDED_DESTINATION, intendedPagePath);
             window.sessionStorage.setItem(INTENDED_HOSTNAME, location.origin);
         }
