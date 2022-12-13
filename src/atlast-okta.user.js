@@ -16,7 +16,7 @@
  * Confluence has a few. For the server and datacenter platforms, the formats can be seen at https://confluence.atlassian.com/confkb/the-differences-between-various-url-formats-for-a-confluence-page-278692715.html.
  * The session expiry page will always look like the "/login.action?os_destination=[INTENDED_DESTINATION]&permissionViolation=true". In some cases, the INTENDED_DESTINATION will differ from where the user actually tried to visit.
  * When attempting to visit a Page Title ("Pretty") Format "/display/ENG/My+Cool+Confluence+Page", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FspaceKey%3DENG%26title%3DMy%2BCool%2BConfluence%2BPage".
- * When attempting to visit a PageId Format, "/pages/viewpage.action?pageId=131268615", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FpageId%3D131268615" which is the same as the original but url-encoded.
+ * When attempting to visit a PageId Format, "/pages/viewpage.action?pageId=131268615", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FpageId%3D123456789" which is the same as the original but url-encoded.
  * When attempting to visit a Shortened ("Tiny Link") Format, "/x/ZIB3Ag", INTENDED_DESTINATION becomes "/pages/tinyurl.action?urlIdentifier=ZIB3Ag".
  *
  * BEWARE that there could simply be nothing there if the user clicked the "sign in" button on Jira/Confluence. In the case of Jira, the path will be "/okta_login.jsp" and that's it.
@@ -67,7 +67,9 @@ const processConfluenceState = (location) => {
             const innerParams = new URLSearchParams(intendedPagePathUriComponents);
             const urlIdentifier = innerParams.get('urlIdentifier');
             const spaceKey = innerParams.get('spaceKey');
-            const title = innerParams.get('title');
+            // Confluence uses application/x-www-form-urlencoded for URLs so spaces will be '+' instead of '%20'.
+            // It'll still work with '%20' but it looks better this way.
+            const title = innerParams.get('title')?.replaceAll(' ', '+');
             // For some reason, Confluence will throw away /x/ short links. I don't like that so I'm fixing that
             if (urlIdentifier) {
                 // Save the /x/ link instead of the uglier /pages/tinyurl.action?urlIdentifier=asdf type beat
