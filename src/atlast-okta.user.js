@@ -30,6 +30,19 @@ const INTENDED_DESTINATION = 'incplusplus.atlast-okta.intended_destination';
 // Set when the user lands on a sign-on page. The value is set to the full hostname of the Jira or Confluence server.
 const INTENDED_HOSTNAME = 'incplusplus.atlast-okta.intended_hostname';
 
+/**
+ * Prepends a slash to a path string if necessary. Otherwise, returns the input string.
+ * @param pathString a path string that may or may not start with "/"
+ * @return the path, starting with a slash
+ */
+const prependSlash = (pathString) => {
+    if (pathString.startsWith('/')) {
+        return pathString;
+    } else {
+        return '/' + pathString;
+    }
+}
+
 const processJiraState = (location) => {
     if (location.toString().includes('/okta_login.jsp')) {
         const params = new URLSearchParams(location.search);
@@ -37,7 +50,7 @@ const processJiraState = (location) => {
         const intendedPagePath = params.get('RelayState');
         // If intendedPagePath is null, the RelayState query param is missing. Do nothing
         if (intendedPagePath) {
-            window.sessionStorage.setItem(INTENDED_DESTINATION, decodeURIComponent(intendedPagePath));
+            window.sessionStorage.setItem(INTENDED_DESTINATION, prependSlash(decodeURIComponent(intendedPagePath)));
             window.sessionStorage.setItem(INTENDED_HOSTNAME, location.origin);
         }
     } else {
