@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         At last! Okta! (Confluence and Jira Okta Redirect Fixer)
 // @namespace    https://github.com/IncPlusPlus/atlast-okta
-// @version      0.6
+// @version      0.7
 // @description  When Confluence or Jira's sessions expire, they require the user to log in again. However, our Okta configuration doesn't send the browser back to the original page that was being viewed. This userscript fixes that.
 // @author       IncPlusPlus
 // @include      https://confluence.*.tld/*
@@ -16,7 +16,7 @@
  * Confluence has a few. For the server and datacenter platforms, the formats can be seen at https://confluence.atlassian.com/confkb/the-differences-between-various-url-formats-for-a-confluence-page-278692715.html.
  * The session expiry page will always look like the "/login.action?os_destination=[INTENDED_DESTINATION]&permissionViolation=true". In some cases, the INTENDED_DESTINATION will differ from where the user actually tried to visit.
  * When attempting to visit a Page Title ("Pretty") Format "/display/ENG/My+Cool+Confluence+Page", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FspaceKey%3DENG%26title%3DMy%2BCool%2BConfluence%2BPage".
- * When attempting to visit a PageId Format, "/pages/viewpage.action?pageId=131268615", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FpageId%3D123456789" which is the same as the original but url-encoded.
+ * When attempting to visit a PageId Format, "/pages/viewpage.action?pageId=123456789", INTENDED_DESTINATION becomes "%2Fpages%2Fviewpage.action%3FpageId%3D123456789" which is the same as the original but url-encoded.
  * When attempting to visit a Shortened ("Tiny Link") Format, "/x/ZIB3Ag", INTENDED_DESTINATION becomes "/pages/tinyurl.action?urlIdentifier=ZIB3Ag".
  *
  * BEWARE that there could simply be nothing there if the user clicked the "sign in" button on Jira/Confluence. In the case of Jira, the path will be "/okta_login.jsp" and that's it.
