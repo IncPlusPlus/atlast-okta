@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         At last! Okta! (Confluence and Jira Okta Redirect Fixer)
 // @namespace    https://github.com/IncPlusPlus/atlast-okta
-// @version      0.7
+// @version      0.8
 // @description  When Confluence or Jira's sessions expire, they require the user to log in again. However, our Okta configuration doesn't send the browser back to the original page that was being viewed. This userscript fixes that.
 // @author       IncPlusPlus
 // @include      https://confluence.*.tld/*
