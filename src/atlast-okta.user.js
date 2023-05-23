@@ -7,6 +7,7 @@
 // @include      https://confluence.*.tld/*
 // @include      https://jira.*.tld/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=atlassian.com
+// @run-at       document-start
 // @downloadUrl  https://github.com/IncPlusPlus/atlast-okta/releases/latest/download/atlast-okta.user.js
 // @updateUrl    https://github.com/IncPlusPlus/atlast-okta/releases/latest/download/atlast-okta.meta.js
 // ==/UserScript==
