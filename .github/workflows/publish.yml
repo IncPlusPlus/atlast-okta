@@ -1,0 +1,39 @@
+name: Publish
+on:
+  release:
+    types:
+      - published
+jobs:
+  version:
+    permissions:
+      # write permission is required to modify a GitHub release
+      contents: write
+    name: Publish
+    runs-on: ubuntu-latest
+    outputs:
+      versionNumber: ${{ steps.version.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Print version
+        run: echo "${{ github.ref_name }}"
+
+      - name: mkdir
+        run: mkdir dist
+
+      - name: Make userscript
+        run: sed 's/@version@/${{ github.ref_name }}/' src/atlast-okta.user.js > dist/atlast-okta.user.js
+
+      - name: Make meta
+        run: awk '/==UserScript/, /\/UserScript/' dist/atlast-okta.user.js > dist/atlast-okta.meta.js
+
+      - name: Add all artifacts to release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          prerelease: false
+          files: |
+            dist/atlast-okta.user.js
+            dist/atlast-okta.meta.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
