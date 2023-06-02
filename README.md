@@ -11,7 +11,9 @@ These installation instructions only apply if you're using Google Chrome. Howeve
 
 1. Install Tampermonkey from the Chrome Web Store. (Click [here](https://chrome.google.com/webstore/detail/dhdgffkkebhmkfjojejmpbldmpobfkfo) and click the blue "Add to Chrome" button. Click the "Add extension" button in the prompt that appears.)
 2. Tampermonkey will open a tab letting you know it was successfully installed. Feel free to close that tab.
-3. Install the script by clicking [here](https://github.com/IncPlusPlus/atlast-okta/raw/release/dist/atlast-okta.user.js). A new tab should open that displays the script. Click the install button near the top left of the screen.
+3. Install the script by
+   clicking [here](https://github.com/IncPlusPlus/atlast-okta/releases/latest/download/atlast-okta.user.js). A new tab
+   should open that displays the script. Click the install button near the top left of the screen.
 4. ????
 5. PROFIT!!!
 
