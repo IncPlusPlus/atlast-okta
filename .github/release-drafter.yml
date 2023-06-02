@@ -58,6 +58,11 @@ autolabeler:
   - label: 'chore'
     branch:
       - '/chore\/.+/'
+  - label: 'dependencies'
+    branch:
+      - '/dependencies\/.+/'
+      - '/dep\/.+/'
+      - '/deps\/.+/'
 template: |
   ## Changes
 
