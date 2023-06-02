@@ -10,8 +10,6 @@ jobs:
       contents: write
     name: Publish
     runs-on: ubuntu-latest
-    outputs:
-      versionNumber: ${{ steps.version.outputs.content }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
